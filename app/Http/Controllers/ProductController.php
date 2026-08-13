@@ -21,9 +21,9 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        return view('products.create');
     }
 
     /**
@@ -31,7 +31,14 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validate = $request->validate([
+            'name' => 'require',
+            'price' => 'require|numeric|min:0',
+        ]);
+
+        $product = Product::create($validate);
+
+        return redirect()->route('products.index')->with('success', 'Data Product Berhasil Di Buat');
     }
 
     /**
