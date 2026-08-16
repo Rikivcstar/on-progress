@@ -13,9 +13,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $product = Product::latest()->paginate(9);
+        $products = Product::all();
 
-        return view('products.index', compact($product));
+        return view('products.index', compact('products'));
     }
 
     /**
@@ -46,8 +46,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::findOrFail($id);
-        return view('products.show', compact($product));
+
     }
 
     /**
