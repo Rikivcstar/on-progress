@@ -34,9 +34,10 @@ class ProductController extends Controller
         $validate = $request->validate([
             'name' => 'require',
             'price' => 'require|numeric|min:0',
+            'stock' => 'require|numeric|min:0'
         ]);
 
-        $product = Product::create($validate);
+        Product::create($validate);
 
         return redirect()->route('products.index')->with('success', 'Data Product Berhasil Di Buat');
     }
@@ -68,8 +69,9 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Product $product)
     {
-        //
+        $product->delete();
+        return redirect()->route('products.index')->with('success', 'data berhasil dihapus');
     }
 }
