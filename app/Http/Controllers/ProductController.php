@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -31,13 +32,14 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $validate = $request->validate([
-            'name' => 'require',
-            'price' => 'require|numeric|min:0',
-            'stock' => 'require|numeric|min:0'
+        $validated = $request->validate([
+            'name' => 'required',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|numeric|min:0'
         ]);
+        $validated['slug'] = Str::slug($validated['name']);
 
-        Product::create($validate);
+        Product::create($validated);
 
         return redirect()->route('products.index')->with('success', 'Data Product Berhasil Di Buat');
     }
