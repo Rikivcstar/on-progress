@@ -33,6 +33,8 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
+        $validated = $request->validated();
+
         $validated['slug'] = Str::slug($validated['name']);
 
         Product::create($validated);
