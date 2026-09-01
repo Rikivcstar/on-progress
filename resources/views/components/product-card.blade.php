@@ -2,4 +2,10 @@
     <strong>{{ $name }}</strong><br>
     Harga: Rp{{ number_format($price) }}<br>
     Stok: {{ $stock }}
+
+    @if($stock < 10)
+        <x-badge color="red">Stock Menipis</x-badge>
+    @else
+        <x-badge color="gray">Stock Ada</x-badge>
+    @endif
 </div>
