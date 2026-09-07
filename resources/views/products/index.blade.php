@@ -1,16 +1,7 @@
-<div>
+@extends('layouts.app')
 
-    <a href="{{ route('products.create') }}">+ Tambah Produk</a>
-    @if(session('success'))
-        <p style="color:green">{{ session('success') }}</p>
-    @endif
-    <h2>Daftar Product toko electronic</h2>
-    <p>Total Products :{{ $products->count() }}</p>
-    @foreach ($products as $product)
-        <x-product-card
-            :name="$product->name"
-            :price="$product->price"
-            :stock="$product->stock"
-        />
-    @endforeach
-</div>
+@section('content')
+    <div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+        <h1 class="text-2xl font-bold text-blue-600">Daftar Produk Toko Elektronik</h1>
+    </div>
+@endsection
