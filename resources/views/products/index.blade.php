@@ -3,6 +3,9 @@
     <x-slot:title>
         Daftar Produk - Toko Elektronik
     </x-slot:title>
+    <p class="text-sm text-gray-500 mb-4">
+        {{ $lowStockCount }} produk dengan stok menipis.
+    </p>
     <div class="bg-white rounded-lg p-6 shadow-sm">
         <h1 class="text-2xl font-bold mb-4 text-gray-800">Katalog Produk Terbaru</h1>
 

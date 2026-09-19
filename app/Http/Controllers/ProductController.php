@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Tests\Integration\Queue\Order;
 
 class ProductController extends Controller
 {
@@ -15,9 +17,11 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('category', 'tags')->latest()->paginate(3);
-
-        return view('products.index', compact('products'));
+        $products = Product::with('category', 'tags')
+                    ->latest()
+                    ->paginate(3);
+        $lowStockCount = Product::lowStock()->count();
+        return view('products.index', compact('products', 'lowStockCount'));
     }
 
     /**
@@ -74,4 +78,25 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'data berhasil dihapus');
     }
+
+
+public function checkout(Request $request, Product $product)
+{
+    $request->validate(['qty' => 'require|integer|min:2']);
+
+    try{
+        DB::transaction(function () use ($product, $request) {
+            if($product->stock < $request->qty){
+                throw new \Exception('stock tidak cukup');
+            }
+            $product->decrement('stock', $request->qty);
+        });
+
+        return back()->with('success', 'CheckOut Berhasil');
+    }catch(\Exception $e)
+    {
+        return back()->with('error', $e->getMessage());
+    }
+}
+
 }
