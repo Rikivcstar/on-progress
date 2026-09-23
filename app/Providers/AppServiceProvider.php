@@ -25,9 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Product::class, ProductPolicy::class);
-        Gate::define('manage-products', function($user) {
-            return in_array($user->role, ['admin', 'seller']);
-        });
+        Gate::define('manage-products', fn ($user) => $user->isAdmin() || $user->isSeller());
          Product::observe(ProductObserver::class);
          Blade::directive('rupiah', function ($expression) {
             return "<?php echo 'Rp' . number_format($expression, 0, ',', '.'); ?>";

@@ -18,6 +18,21 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public function isAdmin() : bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isSeller() : bool
+    {
+        return $this->role === "seller";
+    }
+
+    public function isBuyer() : bool
+    {
+    return $this->role === "buyer";
+    }
+
     /**
      * Get the attributes that should be cast.
      *
