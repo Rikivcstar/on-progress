@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\Product;
 use App\Observers\ProductObserver;
+use App\Policies\ProductPolicy;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Product::class, ProductPolicy::class);
+        Gate::define('manage-products', function($user) {
+            return in_array($user->role, ['admin', 'seller']);
+        });
          Product::observe(ProductObserver::class);
          Blade::directive('rupiah', function ($expression) {
             return "<?php echo 'Rp' . number_format($expression, 0, ',', '.'); ?>";

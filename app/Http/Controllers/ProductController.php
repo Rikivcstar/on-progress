@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
-use Illuminate\Tests\Integration\Queue\Order;
 
 class ProductController extends Controller
 {
@@ -18,9 +17,10 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('category', 'tags')
-                    ->latest()
-                    ->paginate(3);
+            ->latest()
+            ->paginate(3);
         $lowStockCount = Product::lowStock()->count();
+
         return view('products.index', compact('products', 'lowStockCount'));
     }
 
@@ -29,6 +29,10 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
+        if (Gate::denies('manage-products')) {
+            abort(403, 'Kamu tidak memiliki akses untuk menambahkan product.');
+        }
+
         return view('products.create');
     }
 
@@ -57,17 +61,29 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Product $product)
     {
-        //
+        Gate::authorize('update', $product);
+
+        return view('products.edit', compact('product'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(StoreProductRequest $request, Product $product)
     {
-        //
+        Gate::authorize('update', $product);
+
+        $validated = $request->validated();
+
+        if (array_key_exists('name', $validated)) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        $product->update($validated);
+
+        return redirect()->route('products.index')->with('success', 'Data Product Berhasil Di Update');
     }
 
     /**
@@ -75,28 +91,28 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        Gate::authorize('delete', $product);
+
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'data berhasil dihapus');
+
+        return redirect()->route('products.index')->with('success', 'Data Berhasil Dihapus');
     }
 
-
-public function checkout(Request $request, Product $product)
-{
-    $request->validate(['qty' => 'require|integer|min:2']);
-
-    try{
-        DB::transaction(function () use ($product, $request) {
-            if($product->stock < $request->qty){
-                throw new \Exception('stock tidak cukup');
-            }
-            $product->decrement('stock', $request->qty);
-        });
-
-        return back()->with('success', 'CheckOut Berhasil');
-    }catch(\Exception $e)
+    public function checkout(Request $request, Product $product)
     {
-        return back()->with('error', $e->getMessage());
-    }
-}
+        $request->validate(['qty' => 'require|integer|min:2']);
 
+        try {
+            DB::transaction(function () use ($product, $request) {
+                if ($product->stock < $request->qty) {
+                    throw new \Exception('stock tidak cukup');
+                }
+                $product->decrement('stock', $request->qty);
+            });
+
+            return back()->with('success', 'CheckOut Berhasil');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
 }
