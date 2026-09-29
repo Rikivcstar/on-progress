@@ -63,7 +63,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        Gate::authorize('update', $product);
+        // Gate::authorize('update', $product);
+        $this->authorize('update', $product);
 
         return view('products.edit', compact('product'));
     }
@@ -73,7 +74,8 @@ class ProductController extends Controller
      */
     public function update(StoreProductRequest $request, Product $product)
     {
-        Gate::authorize('update', $product);
+        // Gate::authorize('update', $product);
+        $this->authorize('update', $product);
 
         $validated = $request->validated();
 
@@ -91,7 +93,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        Gate::authorize('delete', $product);
+        // Gate::authorize('delete', $product);
+        $this->authorize('delete', $product);
 
         $product->delete();
 
